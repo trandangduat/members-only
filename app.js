@@ -5,12 +5,23 @@ const Schema = mongoose.Schema;
 const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
+const asyncHandler = require("express-async-handler");
+const bcrypt = require("bcryptjs");
+
 require("dotenv").config();
 
 const mongoDB = process.env.DATABASE_URL;
 mongoose.connect(mongoDB);
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "mongo connection error"));
+
+const User = mongoose.model(
+    "User",
+    new Schema({
+        username: { type: String, required: true },
+        password: { type: String, required: true },
+    })
+);
 
 const app = express();
 
@@ -24,6 +35,20 @@ app.use(express.urlencoded({ extended: false }));
 app.get("/", (req, res) => {
     res.render("index");
 });
+app.get("/signup", (req, res) => {
+    res.render("signup");
+});
+app.post("/signup", asyncHandler(async (req, res, next) => {
+    bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
+        if (err) next(err);
+        const user = new User({
+            username: req.body.username,
+            password: hashedPassword,
+        });
+        await user.save();
+        res.redirect("/");
+    })
+}));
 
 app.listen(3000, () => {
     console.log("listening on port 3000");
