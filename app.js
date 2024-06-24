@@ -7,6 +7,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
+const { body, validationResult } = require("express-validator");
 
 require("dotenv").config();
 
@@ -38,17 +39,37 @@ app.get("/", (req, res) => {
 app.get("/signup", (req, res) => {
     res.render("signup");
 });
-app.post("/signup", asyncHandler(async (req, res, next) => {
-    bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
-        if (err) next(err);
-        const user = new User({
-            username: req.body.username,
-            password: hashedPassword,
-        });
-        await user.save();
-        res.redirect("/");
+app.post("/signup", 
+    body("username", "Username must have at lease one character.")
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+    body("password", "Password must have at lease one character.")
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+    body("confirm-password", "Passwords do not match.")
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+
+    asyncHandler(async (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.render("signup", { errors: errors.array() });
+        } else {
+            bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
+                if (err) next(err);
+                const user = new User({
+                    username: req.body.username,
+                    password: hashedPassword,
+                });
+                await user.save();
+                res.redirect("/");
+            });
+        }
     })
-}));
+);
 
 app.listen(3000, () => {
     console.log("listening on port 3000");
