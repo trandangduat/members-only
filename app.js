@@ -5,6 +5,12 @@ const Schema = mongoose.Schema;
 const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
+require("dotenv").config();
+
+const mongoDB = process.env.DATABASE_URL;
+mongoose.connect(mongoDB);
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "mongo connection error"));
 
 const app = express();
 
