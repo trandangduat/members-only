@@ -51,7 +51,10 @@ app.post("/signup",
     body("confirm-password", "Passwords do not match.")
         .trim()
         .isLength({ min: 1 })
-        .escape(),
+        .escape()
+        .custom((value, {req}) => {
+            return (value === req.body.password);
+        }),
 
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
