@@ -21,6 +21,8 @@ const User = mongoose.model(
     new Schema({
         username: { type: String, required: true },
         password: { type: String, required: true },
+        is_member: { type: Boolean, default: false },
+        is_admin: { type: Boolean, default: false },
     })
 );
 
@@ -137,6 +139,11 @@ app.get("/logout", (req, res, next) => {
         res.redirect("/");
     });
 });
+app.get("/membership", asyncHandler(async (req, res) => {
+    if (!req.user.is_member) req.user.is_member = true;
+    await req.user.save();
+    res.redirect("/");
+}));
 
 app.listen(3000, () => {
     console.log("listening on port 3000");

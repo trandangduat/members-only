@@ -7,11 +7,14 @@
 <body>
     <h1>HELLO</h1>
     <% if (typeof currentUser == 'undefined') { %>
-        <a href= "/login">Login</a>
-        <a href= "/signup">Signup</a>
+        <a href= "/login">Login</a><br>
+        <a href= "/signup">Signup</a><br>
     <% } else { %>
-        <span><%= currentUser.username %></span>
-        <a href= "/logout">Log out</a>
+        <span><%= currentUser.username %></span><br>
+        <% if (!currentUser.is_member) { %>
+            <a href= "/membership">Be a member!</a><br>
+        <% } %>
+        <a href= "/logout">Log out</a><br>
     <% } %>
 </body>
 </html>
