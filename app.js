@@ -24,6 +24,15 @@ const User = mongoose.model(
     })
 );
 
+const app = express();
+
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
+
+app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
+app.use(passport.session());
+app.use(express.urlencoded({ extended: false }));
+
 passport.use(
     new LocalStrategy(async (username, password, done) => {
         try {
@@ -52,15 +61,6 @@ passport.deserializeUser(async (id, done) => {
         done(err);
     };
 });
-
-const app = express();
-
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
-
-app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
-app.use(passport.session());
-app.use(express.urlencoded({ extended: false }));
 
 app.get("/", (req, res) => {
     res.render("index");
@@ -114,14 +114,18 @@ app.post("/login",
     .trim()
     .isLength({ min: 1 })
     .escape(),
-    (req, res) => {
+    (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.render("login", { errors: errors.array() });
         } else {
-
+            next();
         }
-    }
+    },
+    passport.authenticate("local", {
+        successRedirect: "/",
+        failureRedirect: "/login",
+    })
 );
 
 app.listen(3000, () => {
