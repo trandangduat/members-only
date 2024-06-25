@@ -5,8 +5,12 @@
     <title></title>
 </head>
 <body>
-    <h1>HELLO WORLD</h1>
-    <a href= "/login">Login</a>
-    <a href= "/signup">Signup</a>
+    <h1>HELLO</h1>
+    <% if (typeof currentUser == 'undefined') { %>
+        <a href= "/login">Login</a>
+        <a href= "/signup">Signup</a>
+    <% } else { %>
+        <span><%= currentUser.username %></span>
+    <% } %>
 </body>
 </html>
