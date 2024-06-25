@@ -131,6 +131,12 @@ app.post("/login",
         failureRedirect: "/login",
     })
 );
+app.get("/logout", (req, res, next) => {
+    req.logout((err) => {
+        if (err) return next(err);
+        res.redirect("/");
+    });
+});
 
 app.listen(3000, () => {
     console.log("listening on port 3000");
