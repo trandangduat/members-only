@@ -24,6 +24,35 @@ const User = mongoose.model(
     })
 );
 
+passport.use(
+    new LocalStrategy(async (username, password, done) => {
+        try {
+            const user = await User.findOne({ username: username });
+            if (!user) {
+                return done(null, false, { message: "Incorrect username" });
+            };
+            const match = await bcrypt.compare(password, user.password);
+            if (!match) {
+                return done(null, false, { message: "Incorrect password" });
+            };
+            return done(null, user);
+        } catch(err) {
+            return done(err);
+        };
+    })
+);
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await User.findById(id);
+        done(null, user);
+    } catch(err) {
+        done(err);
+    };
+});
+
 const app = express();
 
 app.set("views", path.join(__dirname, "views"));
@@ -40,22 +69,22 @@ app.get("/signup", (req, res) => {
     res.render("signup");
 });
 app.post("/signup", 
-    body("username", "Username must have at lease one character.")
-        .trim()
-        .isLength({ min: 1 })
-        .escape(),
-    body("password", "Password must have at lease one character.")
-        .trim()
-        .isLength({ min: 1 })
-        .escape(),
+    body("username", "Username must have at least one character.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+    body("password", "Password must have at least one character.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
     body("confirm-password", "Passwords do not match.")
-        .trim()
-        .isLength({ min: 1 })
-        .escape()
-        .custom((value, {req}) => {
-            return (value === req.body.password);
-        }),
-
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .custom((value, {req}) => {
+        return (value === req.body.password);
+    }),
+    
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -72,6 +101,27 @@ app.post("/signup",
             });
         }
     })
+);
+app.get("/login", (req, res) => {
+    res.render("login");
+});
+app.post("/login", 
+    body("username", "Username must have at least one character.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+    body("password", "Password must have at least one character.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+    (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.render("login", { errors: errors.array() });
+        } else {
+
+        }
+    }
 );
 
 app.listen(3000, () => {
