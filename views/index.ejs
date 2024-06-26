@@ -16,15 +16,16 @@
             <a href= "/membership">Be a member!</a><br>
         <% } %>
         <a href= "/logout">Log out</a><br>
-        <div id= "post-container">
-            <% posts.forEach((post) => { %>
-                <div class= "card">
-                    <p><b><%= post.author.username %></b></p>
-                    <span><%= post.timestamp %></span>
-                    <p><%= post.content %></p>
-                </div>
-            <% }) %>
-        </div>
     <% } %>
+    <div id= "post-container">
+        <% posts.forEach((post) => { %>
+            <% const isMember = (typeof currentUser != 'undefined' && currentUser.is_member); %>
+            <div class= "card">
+                <p><b><%= (isMember ? post.author.username : 'Anonymous') %></b></p>
+                <span><%= (isMember ? post.timestamp : '') %></span>
+                <p><%= post.content %></p>
+            </div>
+        <% }) %>
+    </div>
 </body>
 </html>
