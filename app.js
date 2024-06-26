@@ -76,9 +76,12 @@ passport.deserializeUser(async (id, done) => {
     };
 });
 
-app.get("/", (req, res) => {
-    res.render("index");
-});
+app.get("/", asyncHandler(async (req, res) => {
+    const posts = await Post.find().populate("author");
+    res.render("index", {
+        posts: Array.from(posts)
+    });
+}));
 app.get("/signup", (req, res) => {
     res.render("signup");
 });
@@ -155,6 +158,18 @@ app.get("/membership", asyncHandler(async (req, res) => {
 app.get("/new-post", (req, res) => {
     res.render("new-post");
 });
+app.post("/new-post", 
+    body("content").trim().escape(),
+    asyncHandler(async (req, res) => {
+        const post = new Post({
+            author: req.user._id,
+            timestamp: Date.now(),
+            content: req.body.content,
+        });
+        await post.save();
+        res.redirect("/");
+    })
+);
 
 app.listen(3000, () => {
     console.log("listening on port 3000");
