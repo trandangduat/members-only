@@ -164,7 +164,6 @@ app.get("/new-post", (req, res) => {
     res.render("new-post");
 });
 app.post("/new-post", 
-    body("content").trim().escape(),
     asyncHandler(async (req, res) => {
         const post = new Post({
             author: req.user._id,
