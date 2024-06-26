@@ -8,6 +8,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
 const { body, validationResult } = require("express-validator");
+const { DateTime } = require("luxon");
 
 require("dotenv").config();
 
@@ -78,8 +79,12 @@ passport.deserializeUser(async (id, done) => {
 
 app.get("/", asyncHandler(async (req, res) => {
     const posts = await Post.find().populate("author");
+    const allPosts = Array.from(posts);
+    allPosts.forEach((post) => { 
+        post.formattedDate = DateTime.fromJSDate(post.timestamp).toLocaleString(DateTime.DATETIME_MED);
+    });
     res.render("index", {
-        posts: Array.from(posts)
+        posts: allPosts 
     });
 }));
 app.get("/signup", (req, res) => {

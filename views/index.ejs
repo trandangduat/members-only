@@ -22,7 +22,7 @@
             <% const isMember = (typeof currentUser != 'undefined' && currentUser.is_member); %>
             <div class= "card">
                 <p><b><%= (isMember ? post.author.username : 'Anonymous') %></b></p>
-                <span><%= (isMember ? post.timestamp : '') %></span>
+                <span><%= (isMember ? post.formattedDate : '') %></span>
                 <p><%= post.content %></p>
             </div>
         <% }) %>
