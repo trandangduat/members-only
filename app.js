@@ -25,6 +25,14 @@ const User = mongoose.model(
         is_admin: { type: Boolean, default: false },
     })
 );
+const Post = mongoose.model(
+    "Post",
+    new Schema({
+        author: { type: Schema.Types.ObjectId, ref: "User" },
+        timestamp: { type: Date, default: Date.now },
+        content: { type: String, required: true },
+    })
+);
 
 const app = express();
 
@@ -144,6 +152,9 @@ app.get("/membership", asyncHandler(async (req, res) => {
     await req.user.save();
     res.redirect("/");
 }));
+app.get("/new-post", (req, res) => {
+    res.render("new-post");
+});
 
 app.listen(3000, () => {
     console.log("listening on port 3000");

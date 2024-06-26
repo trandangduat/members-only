@@ -10,7 +10,8 @@
         <a href= "/login">Login</a><br>
         <a href= "/signup">Signup</a><br>
     <% } else { %>
-        <span><%= currentUser.username %></span><br>
+        <span><%= currentUser.username %></span><hr>
+        <a href= "/new-post">Create a new post</a><br>
         <% if (!currentUser.is_member) { %>
             <a href= "/membership">Be a member!</a><br>
         <% } %>
