@@ -1,5 +1,14 @@
 <%- include('partials/head') %>
-    <h1>Sign up</h1>
+    <h1 class="mb-3">Sign up</h1>
+    <% if (typeof errors != 'undefined') { %>
+        <div class="alert alert-warning mt-3" role="alert">
+            <ul class="mb-0">
+                <% errors.forEach((err) => { %>
+                    <li><%= err.msg %></li>
+                <% }) %>
+            </ul>
+        </div>
+    <% } %>
     <form method= "POST" action="">
         <div class="form-floating mb-3">
             <input type= "text" class="form-control" id="floatingInput" name= "username" placeholder="Username" />
@@ -15,11 +24,4 @@
         </div>
         <button type= "submit" class="btn btn-primary">Submit</button>
     </form> 
-    <% if (typeof errors != 'undefined') { %>
-        <ul>
-            <% errors.forEach((err) => { %>
-                <li><%= err.msg %></li>
-            <% }) %>
-        </ul>
-    <% } %>
 <%- include('partials/footer') %>

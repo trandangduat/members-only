@@ -1,10 +1,11 @@
 <%- include('partials/head') %>
     <div id= "post-container">
-        <a class="btn btn-primary" href= "/new-post">Create a new post</a><br>
+        <a class="btn btn-primary" href= "/new-post"><i class="bi bi-pen me-2"></i>New post</a><br>
         <% const isMember = (typeof currentUser != 'undefined' && currentUser.is_member); %>
         <% const isAdmin = (typeof currentUser != 'undefined' && currentUser.is_admin); %>
         <% if (!isMember) { %>
             <div class="alert alert-info mt-3" role="alert">
+                <i class="bi bi-info-circle me-2"></i>
                 You must be a member to see posts' author and date.
             </div>
         <% } %>
@@ -22,7 +23,9 @@
                 </div>
                 <div class="card-body">
                     <p class="card-text"><%= post.content %></p>
-                    <p class="card-text"><small class="text-body-secondary"><%= (isMember ? post.formattedDate : '') %></small></p>
+                    <% if (isAdmin) { %>
+                        <p class="card-text"><small class="text-body-secondary"><i class="bi bi-clock me-2"></i><%= (isMember ? post.formattedDate : '') %></small></p>
+                    <% } %>
                 </div>
             </div>
         <% }) %>

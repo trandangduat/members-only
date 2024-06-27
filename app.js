@@ -177,7 +177,10 @@ app.post("/new-post",
     })
 );
 app.get("/post/:id/delete", asyncHandler(async (req, res) => {
-    if (!req.user.is_admin) return;
+    if (typeof req.user == 'undefined' || !req.user.is_admin) {
+        res.send("You must be admin to do this action.");
+        return;
+    }
     const post = await Post.findById(req.params.id);
     await post.deleteOne();
     res.redirect("/");
