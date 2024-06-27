@@ -9,8 +9,13 @@
         <% } %>
         <% posts.forEach((post) => { %> 
             <div class= "card mt-3">
-                <div class="card-header">
-                    <b><%= (isMember ? post.author.username : 'Anonymous') %></b>
+                <div class="d-flex flex-row align-items-center card-header">
+                    <div class="me-auto">
+                        <b><%= (isMember ? post.author.username : 'Anonymous') %></b>
+                    </div>
+                    <div class="">
+                        <a href="<%= post.url + 'delete' %>" type="button" class="btn btn-outline-danger">Delete</a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <p class="card-text"><%= post.content %></p>

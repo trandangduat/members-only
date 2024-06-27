@@ -83,6 +83,7 @@ app.get("/", asyncHandler(async (req, res) => {
     const allPosts = Array.from(posts).reverse();
     allPosts.forEach((post) => { 
         post.formattedDate = DateTime.fromJSDate(post.timestamp).toLocaleString(DateTime.DATETIME_MED);
+        post.url = `/post/${post._id}/`;
     });
     res.render("index", {
         posts: allPosts 
@@ -175,6 +176,11 @@ app.post("/new-post",
         res.redirect("/");
     })
 );
+app.get("/post/:id/delete", asyncHandler(async (req, res) => {
+    const post = await Post.findById(req.params.id);
+    await post.deleteOne();
+    res.redirect("/");
+}));
 
 app.listen(3000, () => {
     console.log("listening on port 3000");
