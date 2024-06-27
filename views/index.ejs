@@ -1,31 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
-    <h1>HELLO</h1>
-    <% if (typeof currentUser == 'undefined') { %>
-        <a href= "/login">Login</a><br>
-        <a href= "/signup">Signup</a><br>
-    <% } else { %>
-        <span><%= currentUser.username %></span><hr>
-        <a href= "/new-post">Create a new post</a><br>
-        <% if (!currentUser.is_member) { %>
-            <a href= "/membership">Be a member!</a><br>
-        <% } %>
-        <a href= "/logout">Log out</a><br>
-    <% } %>
+<%- include('partials/head') %>
     <div id= "post-container">
-        <% posts.forEach((post) => { %>
-            <% const isMember = (typeof currentUser != 'undefined' && currentUser.is_member); %>
-            <div class= "card">
-                <p><b><%= (isMember ? post.author.username : 'Anonymous') %></b></p>
-                <span><%= (isMember ? post.formattedDate : '') %></span>
-                <p><%= post.content %></p>
+        <a class="btn btn-primary" href= "/new-post">Create a new post</a><br>
+        <% const isMember = (typeof currentUser != 'undefined' && currentUser.is_member); %>
+        <% if (!isMember) { %>
+            <div class="alert alert-info mt-3" role="alert">
+                You must be a member to see posts' author and date.
+            </div>
+        <% } %>
+        <% posts.forEach((post) => { %> 
+            <div class= "card mt-3">
+                <div class="card-header">
+                    <b><%= (isMember ? post.author.username : 'Anonymous') %></b>
+                </div>
+                <div class="card-body">
+                    <p class="card-text"><%= post.content %></p>
+                    <p class="card-text"><small class="text-body-secondary"><%= (isMember ? post.formattedDate : '') %></small></p>
+                </div>
             </div>
         <% }) %>
     </div>
-</body>
-</html>
+<%- include('partials/footer') %>

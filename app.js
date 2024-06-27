@@ -43,6 +43,7 @@ app.set("view engine", "ejs");
 app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, "public")));
 app.use((req, res, next) => {
     res.locals.currentUser = req.user;
     next();
@@ -79,7 +80,7 @@ passport.deserializeUser(async (id, done) => {
 
 app.get("/", asyncHandler(async (req, res) => {
     const posts = await Post.find().populate("author");
-    const allPosts = Array.from(posts);
+    const allPosts = Array.from(posts).reverse();
     allPosts.forEach((post) => { 
         post.formattedDate = DateTime.fromJSDate(post.timestamp).toLocaleString(DateTime.DATETIME_MED);
     });

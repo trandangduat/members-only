@@ -1,19 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+<%- include('partials/head') %>
     <% if (typeof currentUser == 'undefined') { %>
-        <p>You must <a href= "/login">Login</a> or <a href= "/signup">Sign up</a> to create a post!</p>
+        <div class="alert alert-warning" role="alert">
+            You must <a href= "/login">Login</a> or <a href= "/signup">Sign up</a> to create a post!
+        </div>
     <% } else { %>
-        <h1>NEW POST</h1>
+        <h1>New post</h1>
         <form method= "POST" action="">
-            <label for= "content">Content</label><br>
-            <textarea name= "content" placeholder="Your content goes here..." required></textarea>
-            <button type= "submit">Submit</button>
+            <div class="form-floating mt-3">
+                <textarea name= "content" placeholder="Content..." class="form-control" id="floatingTextarea" style="height: 200px;" required></textarea>
+                <label for= "floatingTextarea">Content</label>
+            </div>
+            <button type= "submit" class="btn btn-primary mt-3">Submit</button>
         </form> 
     <% } %>
-</body>
-</html>
+<%- include('partials/footer') %>
