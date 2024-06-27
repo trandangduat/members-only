@@ -2,6 +2,7 @@
     <div id= "post-container">
         <a class="btn btn-primary" href= "/new-post">Create a new post</a><br>
         <% const isMember = (typeof currentUser != 'undefined' && currentUser.is_member); %>
+        <% const isAdmin = (typeof currentUser != 'undefined' && currentUser.is_admin); %>
         <% if (!isMember) { %>
             <div class="alert alert-info mt-3" role="alert">
                 You must be a member to see posts' author and date.
@@ -14,7 +15,9 @@
                         <b><%= (isMember ? post.author.username : 'Anonymous') %></b>
                     </div>
                     <div>
-                        <button type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onClick="showDeleteModal(this)" class="btn btn-outline-danger delete-post" data-post-url="<%= post.url %>">Delete</button>
+                        <% if (isAdmin) { %>
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onClick="showDeleteModal(this)" class="btn btn-outline-danger delete-post" data-post-url="<%= post.url %>">Delete</button>
+                        <% } %>
                     </div>
                 </div>
                 <div class="card-body">
