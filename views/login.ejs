@@ -13,14 +13,26 @@
             </ul>
         </div>
     <% } %>
+    <% const usernameFailure = typeof formData != 'undefined' && formData.usernameFailure; %>
+    <% const passwordFailure = typeof formData != 'undefined' && formData.passwordFailure; %>
     <form method= "POST" action="">
         <div class="form-floating mb-3">
-            <input type= "text" class="form-control" id="floatingInput" name= "username" placeholder="Username" />
+            <input type= "text" class="form-control <%= (usernameFailure ? 'is-invalid' : '') %>" value="<%= (typeof formData != 'undefined' ? formData.username : '') %>" id="floatingInput" name= "username" placeholder="Username" />
             <label for= "floatingInput" class="form-label">Username</label>
+            <% if (usernameFailure) { %>
+                <div class="invalid-feedback">
+                    <%= formData.usernameFailureMessage %>
+                </div>
+            <% } %>
         </div>
         <div class="form-floating mb-3">
-            <input type= "password" class="form-control" id="floatingInput" name= "password" placeholder="Password" />
+            <input type= "password" class="form-control <%= (passwordFailure ? 'is-invalid' : '') %>" value="<%= (typeof formData != 'undefined' ? formData.password : '') %>" id="floatingInput" name= "password" placeholder="Password" />
             <label for= "floatingInput" class="form-label">Password</label>
+            <% if (passwordFailure) { %>
+                <div class="invalid-feedback">
+                    <%= formData.passwordFailureMessage %>
+                </div>
+            <% } %>
         </div>
         <button type= "submit" class="btn btn-primary">Submit</button>
     </form> 

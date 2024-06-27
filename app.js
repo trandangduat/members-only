@@ -9,6 +9,7 @@ const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
 const { body, validationResult } = require("express-validator");
 const { DateTime } = require("luxon");
+const flash = require('connect-flash');
 
 require("dotenv").config();
 
@@ -44,27 +45,45 @@ app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(flash());
 app.use((req, res, next) => {
     res.locals.currentUser = req.user;
     next();
 });
 
 passport.use(
-    new LocalStrategy(async (username, password, done) => {
-        try {
-            const user = await User.findOne({ username: username });
-            if (!user) {
-                return done(null, false, { message: "Incorrect username" });
+    new LocalStrategy(
+        {
+            passReqToCallback : true
+        },
+        async (req, username, password, done) => {
+            try {
+                const user = await User.findOne({ username: username });
+                const formData = {
+                    username,
+                    password,
+                    usernameFailure: false,
+                    passwordFailure: false,
+                    usernameFailureMessage: "Username does not exist.",
+                    passwordFailureMessage: "Incorrect password."
+                };
+                if (!user) {
+                    formData.usernameFailure = true;
+                    req.flash("form-data", formData);
+                    return done(null, false);
+                };
+                const match = await bcrypt.compare(password, user.password);
+                if (!match) {
+                    formData.passwordFailure = true;
+                    req.flash("form-data", formData);
+                    return done(null, false);
+                };
+                return done(null, user);
+            } catch(err) {
+                return done(err);
             };
-            const match = await bcrypt.compare(password, user.password);
-            if (!match) {
-                return done(null, false, { message: "Incorrect password" });
-            };
-            return done(null, user);
-        } catch(err) {
-            return done(err);
-        };
-    })
+        }
+    )
 );
 passport.serializeUser((user, done) => {
     done(null, user.id);
@@ -94,20 +113,20 @@ app.get("/signup", (req, res) => {
 });
 app.post("/signup", 
     body("username", "Username must have at least one character.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
     body("password", "Password must have at least one character.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
     body("confirm-password", "Passwords do not match.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .custom((value, {req}) => {
-        return (value === req.body.password);
-    }),
+        .trim()
+        .isLength({ min: 1 })
+        .escape()
+        .custom((value, {req}) => {
+            return (value === req.body.password);
+        }),
     
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
@@ -127,17 +146,20 @@ app.post("/signup",
     })
 );
 app.get("/login", (req, res) => {
-    res.render("login");
+    res.render("login", {
+        flashErrors: req.flash('error'),
+        formData: req.flash('form-data')[0],
+    });
 });
 app.post("/login", 
     body("username", "Username must have at least one character.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
     body("password", "Password must have at least one character.")
-    .trim()
-    .isLength({ min: 1 })
-    .escape(),
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
