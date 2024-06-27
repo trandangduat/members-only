@@ -13,8 +13,8 @@
                     <div class="me-auto">
                         <b><%= (isMember ? post.author.username : 'Anonymous') %></b>
                     </div>
-                    <div class="">
-                        <a href="<%= post.url + 'delete' %>" type="button" class="btn btn-outline-danger">Delete</a>
+                    <div>
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onClick="showDeleteModal(this)" class="btn btn-outline-danger delete-post" data-post-url="<%= post.url %>">Delete</button>
                     </div>
                 </div>
                 <div class="card-body">
@@ -24,4 +24,17 @@
             </div>
         <% }) %>
     </div>
+    <%- include('components/modal', { 
+        title: "Delete post", 
+        body: "Are you frfr want to delete this post?", 
+        close: "Nahhh", 
+        confirm: "For real"
+    }) %>
+    <script>
+        function showDeleteModal (button) {
+            const deleteURL = button.getAttribute('data-post-url') + "delete";
+            const modalConfirmButton = document.querySelector(".modal #confirm");
+            modalConfirmButton.setAttribute("href", deleteURL);
+        }
+    </script>
 <%- include('partials/footer') %>
