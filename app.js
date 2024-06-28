@@ -14,9 +14,7 @@ const flash = require('connect-flash');
 require("dotenv").config();
 
 const mongoDB = process.env.DATABASE_URL;
-mongoose.connect(mongoDB);
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "mongo connection error"));
+mongoose.connect(mongoDB).catch((err) => console.log(err));
 
 const User = mongoose.model(
     "User",
