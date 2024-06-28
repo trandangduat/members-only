@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
@@ -10,8 +11,14 @@ const bcrypt = require("bcryptjs");
 const { body, validationResult } = require("express-validator");
 const { DateTime } = require("luxon");
 const flash = require('connect-flash');
-
-require("dotenv").config();
+const multer = require("multer");
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 2 * 1024 * 1024,
+    },
+});
+const cloudinary = require('cloudinary').v2;
 
 const mongoDB = process.env.DATABASE_URL;
 mongoose.connect(mongoDB).catch((err) => console.log(err));
@@ -31,6 +38,7 @@ const Post = mongoose.model(
         author: { type: Schema.Types.ObjectId, ref: "User" },
         timestamp: { type: Date, default: Date.now },
         content: { type: String, required: true },
+        imageURL: { type: String },
     })
 );
 
@@ -186,11 +194,18 @@ app.get("/new-post", (req, res) => {
     res.render("new-post");
 });
 app.post("/new-post", 
+    upload.single('postImage'),
     asyncHandler(async (req, res) => {
+        const uploadResult = await new Promise((resolve) => {
+            cloudinary.uploader.upload_stream((error, uploadResult) => {
+                return resolve(uploadResult);
+            }).end(req.file.buffer);
+        });
         const post = new Post({
             author: req.user._id,
             timestamp: Date.now(),
             content: req.body.content,
+            imageURL: uploadResult.url,
         });
         await post.save();
         res.redirect("/");
