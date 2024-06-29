@@ -17,12 +17,12 @@
                     </div>
                     <div>
                         <% if (isAdmin) { %>
-                            <button type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onClick="showDeleteModal(this)" class="btn btn-outline-danger delete-post" data-post-url="<%= post.url %>">Delete</button>
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onClick="showDeleteModal(this)" class="btn btn-outline-danger delete-post" data-post-url="<%= post.url %>"><i class="bi bi-trash me-2"></i>Delete</button>
                         <% } %>
                     </div>
                 </div>
                 <div class="card-body">
-                    <img src="<%= post.imageURL %>" style="max-height: 10em;" class="img-fluid rounded mx-auto d-block">
+                    <img src="<%= post.imageURL %>" style="max-width: 10em;" class="me-3 rounded float-start">
                     <p class="card-text"><%= post.content %></p>
                     <% if (isMember) { %>
                         <p class="card-text"><small class="text-body-secondary"><i class="bi bi-clock me-2"></i><%= (isMember ? post.formattedDate : '') %></small></p>

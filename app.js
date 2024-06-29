@@ -14,6 +14,13 @@ const flash = require('connect-flash');
 const multer = require("multer");
 const upload = multer({
     storage: multer.memoryStorage(),
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only images are allowed.'), false);
+        }
+    },
     limits: {
         fileSize: 2 * 1024 * 1024,
     },
@@ -102,6 +109,18 @@ passport.deserializeUser(async (id, done) => {
         done(err);
     };
 });
+const handleMulterError = (err, req, res) => {
+    if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            req.flash('fileError', 'File is too large. Maximum size is 2MB.');
+        } else {
+            req.flash('fileError', 'Error uploading file.');
+        }
+    } else if (err.message === 'Only images are allowed.') {
+        req.flash('fileError', err.message);
+    }
+    return res.redirect('/new-post');
+};
 
 app.get("/", asyncHandler(async (req, res) => {
     const posts = await Post.find().populate("author");
@@ -191,16 +210,33 @@ app.get("/membership", asyncHandler(async (req, res) => {
     res.redirect("/");
 }));
 app.get("/new-post", (req, res) => {
-    res.render("new-post");
+    res.render("new-post", {
+        fileErrors: req.flash('fileError'),
+    });
 });
 app.post("/new-post", 
-    upload.single('postImage'),
-    asyncHandler(async (req, res) => {
-        const uploadResult = await new Promise((resolve) => {
-            cloudinary.uploader.upload_stream((error, uploadResult) => {
-                return resolve(uploadResult);
-            }).end(req.file.buffer);
+    (req, res, next) => {
+        upload.single('postImage')(req, res, (err) => {
+            if (err) {
+                return handleMulterError(err, req, res);
+            }
+            next();
         });
+    },
+    asyncHandler(async (req, res) => {
+        let uploadResult = { url: '' };
+        if (typeof req.file != 'undefined') {
+            try {
+                uploadResult = await new Promise((resolve) => {
+                    cloudinary.uploader.upload_stream((error, uploadResult) => {
+                        return resolve(uploadResult);
+                    }).end(req.file.buffer);
+                });
+            } catch (err) {
+                req.flash('fileError', 'Error uploading to Cloudinary');
+                return res.redirect('/new-post');
+            }
+        }
         const post = new Post({
             author: req.user._id,
             timestamp: Date.now(),
