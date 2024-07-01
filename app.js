@@ -134,7 +134,9 @@ app.get("/", asyncHandler(async (req, res) => {
     });
 }));
 app.get("/signup", (req, res) => {
-    res.render("signup");
+    res.render("signup", {
+        usernameExisted: req.flash("usernameExisted"),
+    });
 });
 app.post("/signup", 
     body("username", "Username must have at least one character.")
@@ -158,6 +160,12 @@ app.post("/signup",
         if (!errors.isEmpty()) {
             res.render("signup", { errors: errors.array() });
         } else {
+            const usernameMatch = Array.from(await User.find({ username: req.body.username }));
+            if (usernameMatch.length > 0) {
+                req.flash("usernameExisted", "Username already exists.");
+                res.redirect("/signup");
+                return;
+            }
             bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
                 if (err) next(err);
                 const user = new User({
