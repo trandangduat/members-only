@@ -26,6 +26,7 @@ const upload = multer({
     },
 });
 const cloudinary = require('cloudinary').v2;
+const { extractPublicId } = require('cloudinary-build-url');
 
 const mongoDB = process.env.DATABASE_URL;
 mongoose.connect(mongoDB).catch((err) => console.log(err));
@@ -261,6 +262,11 @@ app.get("/post/:id/delete", asyncHandler(async (req, res) => {
         return;
     }
     const post = await Post.findById(req.params.id);
+    const imageURL = post.imageURL;
+    if (imageURL.length) {
+        const imagePublicID = extractPublicId(imageURL); 
+        cloudinary.uploader.destroy(imagePublicID).then((res) => console.log(res));
+    }
     await post.deleteOne();
     res.redirect("/");
 }));
